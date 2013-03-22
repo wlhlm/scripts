@@ -1,0 +1,18 @@
+#!/bin/bash
+# Automatically switch between different keyboard layouts
+
+# Layouts to switch to
+layouts=("us" "de")
+
+# Get current layout
+curr=`setxkbmap -query | grep ^layout | awk '{ print $2 }'`
+
+# Get next layout; wrap around if it's last one
+for i in `seq 0 $((${#layouts[@]}-1))`; do
+	[ "${layouts[$i]}" = "$curr" ] && next=$(($i+1))
+done
+[ -z $next ] && next=0
+[ $next -eq ${#layouts[@]} ] && next=0
+
+# Finally set keyboard layout
+setxkbmap "${layouts[$next]}"
