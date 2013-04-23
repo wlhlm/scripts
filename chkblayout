@@ -7,7 +7,7 @@ layouts=("us" "de")
 # Get current layout
 curr=`setxkbmap -query | grep ^layout | awk '{ print $2 }'`
 
-# Get next layout; wrap around if it's last one
+# Get next layout; wrap around if it's the last one
 for i in `seq 0 $((${#layouts[@]}-1))`; do
 	[ "${layouts[$i]}" = "$curr" ] && next=$(($i+1))
 done
