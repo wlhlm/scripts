@@ -12,7 +12,7 @@ usage() {
 }
 
 # process arguments
-ARGS=`getopt .mhw:t:f: "$@"`
+ARGS="`getopt .mhw:t:f: "$@"`"
 [ "$?" -ne "0" ] && usage && exit 1
 set -- $ARGS
 
@@ -35,12 +35,12 @@ done
 
 # escape HTML characters < and &
 escape_html_chars() {
-	echo $1 | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g'
+	sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' <<<"$1"
 }
 
 generate_dir_table() {
 	# get specified directory
-	PWD="`readlink -nf $(echo $1 | tr -d "'")`"
+	PWD="`readlink -nf $(tr -d "'" <<<"$1")`"
 	# get file listing
 	files="`ls -gGca$human --time-style=long-iso "$PWD" | sed 1d`"
 
@@ -49,20 +49,20 @@ generate_dir_table() {
 	[ -n "$mime" ] && echo -n "<th>Type</th>"
 	echo "</tr>"
 	# generate file listing table
-	echo "$files" | while read f; do
+	while read f; do
 		file_name_link=
-		file_name="`echo "$f" | awk '{ print $6 }'`"
-		file_date="`echo "$f" | awk '{ print $4 " " $5 }'`"
-		file_size="`echo "$f" | awk '{ print $3 }'`"
-		file_type="`echo "$f" | awk '{ print substr($1, 1, 1) }'`"
+		file_name="`awk '{ print $6 }' <<<"$f"`"
+		file_date="`awk '{ print $4 " " $5 }' <<<"$f"`"
+		file_size="`awk '{ print $3 }' <<<"$f"`"
+		file_type="`awk '{ print substr($1, 1, 1) }' <<<"$f"`"
 		file_path="$PWD"
-		echo "$file_name" | grep -q "^\.$\|^index\." && continue
-		[ -z "$hidden" ] && echo "$file_name" | grep -q "^\.[^\.]*$" && continue
+		grep -q "^\.$\|^index\." <<<"$file_name" && continue
+		[ -z "$hidden" ] && grep -q "^\.[^\.]*$" <<<"$file_name" && continue
 
 		# strip webroot path part
 		if [ -n "$web_dir" ]; then
-			web_dir="`echo $web_dir | tr -d "'"`"
-			file_path="`echo "$PWD" | sed "s;$web_dir;;g"`"
+			web_dir="`tr -d "'" <<<"$web_dir"`"
+			file_path="`sed "s;$web_dir;;g" <<<"$PWD"`"
 		fi
 
 		file_name_dir=""
@@ -85,17 +85,18 @@ generate_dir_table() {
 		echo -n "<td class=\"s\">$file_size</td>"
 		[ -n "$mime" ] && echo -n "<td class=\"t\">`file --mime-type -b "$PWD/$file_name"`</td>"
 		echo "</tr>"
-	done
+	done <<<"$files"
 	echo "</table></div>"
 }
 
 output_listing() {
 	template="$1"
-	web_dir="`echo "$2" | tr -d "'"`"
-	[ -n "$text_file" ] && text_file="`cat $(echo "$3" | tr -d "'")`"
+	web_dir="`tr -d "'" <<<"$2"`"
+	[ -n "$text_file" ] && text_file="`cat $(tr -d "'" <<<"$3")`"
 	[ -z "$template" ] && template="dir.tmpl"
-	path="`echo "$4" | tr -d "'" | sed "s;$web_dir;;g"`"
-	listing="`generate_dir_table $4 | sed -e ':a;N;$!ba;s/\n/\\\\n/g' -e 's/[]"&\/()$*.^|[]/\\\\&/g'`"
+	path="`tr -d "'" <<<"$4"`"
+	[ -n "$web_dir" ] && path="`sed "s;$web_dir;;g" <<<"$path"`"
+	listing="`generate_dir_table "$4" | sed -e ':a;N;$!ba;s/\n/\\\\n/g' -e 's/[]"&\/()$*.^|[]/\\\\&/g'`"
 
 	# process template
 	echo "`cat "$template" | sed "s;{{PWD}};$path;g" | \
