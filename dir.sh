@@ -96,15 +96,13 @@ output_listing() {
 	[ -z "$template" ] && template="dir.tmpl"
 	path="`tr -d "'" <<<"$4"`"
 	[ -n "$web_dir" ] && path="`sed "s;$web_dir;;g" <<<"$path"`"
-	listing="`generate_dir_table "$4" | sed -e ':a;N;$!ba;s/\n/\\\\n/g' -e 's/[]"&\/()$*.^|[]/\\\\&/g'`"
+	listing="`generate_dir_table "$4"`"
 
 	# process template
-	echo "`cat "$template" | sed "s;{{PWD}};$path;g" | \
-		sed ':a;N;$!ba;s/\n/\\\\n/g' | \
-		sed "s/{{LISTING}}/$listing/g" | \
-		sed "s/{{TEXT}}/<pre class=\"readme\">$text_file<\/pre>/g" | \
-		sed 's/{{.*}}//g' | \
-		sed 's/\\\\n/\n/g'`"
+	cat "$template" | sed "s;{{PWD}};$path;g" | \
+		awk '{ gsub(A, B); print; }' A="{{LISTING}}" B="$listing" | \
+		awk '{ gsub(A, B); print; }' A="{{TEXT}}" B="<pre class=\"readme\">$text_file</pre>" | \
+		sed 's/{{.*}}//g'
 }
 
 template="${template%\'}"
