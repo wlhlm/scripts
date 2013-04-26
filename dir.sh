@@ -3,7 +3,7 @@
 
 usage() {
 	echo "Usage: $0  [-mh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
-	echo "	-.	Show hidden files"
+	echo "	-a	Show hidden files"
 	echo "	-m	Include mime-type"
 	echo "	-h	Show file sizes  in human readable form"
 	echo "	-w	Specify webroot part of the directory path to strip from links"
@@ -12,7 +12,7 @@ usage() {
 }
 
 # process arguments
-ARGS="`getopt .mhw:t:f: "$@"`"
+ARGS="`getopt amhw:t:f: "$@"`"
 [ "$?" -ne "0" ] && usage && exit 1
 set -- $ARGS
 
@@ -21,9 +21,9 @@ set -- $ARGS
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
-		-.)	hidden=1;;
+		-a)	hidden=1;;
 		-m)	mime=1;;
-		-h)	human="h";;
+		-h)	human=1;;
 		-w)	web_dir="$2"; shift;;
 		-t)	template="$2"; shift;;
 		-f)	text_file="$2"; shift;;
@@ -41,8 +41,12 @@ escape_html_chars() {
 generate_dir_table() {
 	# get specified directory
 	PWD="`readlink -nf $(tr -d "'" <<<"$1")`"
+
 	# get file listing
-	files="`ls -gGca$human --time-style=long-iso "$PWD" | sed 1d`"
+	ls_args="-gc --no-group --time-style=long-iso --group-directories-first"
+	[ -n "$human" ] && ls_args="$ls_args --human-readable"
+	[ -n "$hidden" ] && ls_args="$ls_args --all"
+	files="`ls $ls_args "$PWD" | sed 1d`"
 
 	echo "<div id=\"list\"><table id=\"table\">"
 	echo -n "<tr class=\"table_header\"><th>Name</th><th>Last Modified</th><th>Size</th>"
@@ -57,7 +61,6 @@ generate_dir_table() {
 		file_type="`awk '{ print substr($1, 1, 1) }' <<<"$f"`"
 		file_path="$PWD"
 		grep -q "^\.$\|^index\." <<<"$file_name" && continue
-		[ -z "$hidden" ] && grep -q "^\.[^\.]*$" <<<"$file_name" && continue
 
 		# strip webroot path part
 		if [ -n "$web_dir" ]; then
@@ -112,6 +115,5 @@ output_listing() {
 	fi
 }
 
-template="${template%\'}"
-template="${template#\'}"
+# Generate listing
 output_listing "$template" "$web_dir" "$text_file" "$1"
