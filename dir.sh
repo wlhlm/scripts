@@ -1,14 +1,14 @@
 #!/bin/sh
-# Generate custom directory listing
+# Generate custom directory listings
 
 usage() {
 	echo "Usage: $0  [-mh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
-	echo "	-a	Show hidden files"
-	echo "	-m	Include mime-type"
-	echo "	-h	Show file sizes  in human readable form"
-	echo "	-w	Specify webroot part of the directory path to strip from links"
-	echo "	-t	Specify template file"
-	echo "	-f	Specify txt file to be put in the footer"
+	echo "	-a			Show hidden files"
+	echo "	-m			Include mime-type"
+	echo "	-h			Show file sizes  in human readable form"
+	echo "	-w [FILE]	Specify webroot part of the directory path to strip from links"
+	echo "	-t [FILE]	Specify template file"
+	echo "	-f [FILE]	Specify txt file to be put in the footer"
 }
 
 # process arguments
@@ -40,7 +40,7 @@ escape_html_chars() {
 
 generate_dir_table() {
 	# get specified directory
-	PWD="`readlink -nf $(tr -d "'" <<<"$1")`"
+	PWD="`readlink -nf "$1"`"
 
 	# get file listing
 	ls_args="-gc --no-group --time-style=long-iso --group-directories-first"
@@ -52,21 +52,19 @@ generate_dir_table() {
 	echo -n "<tr class=\"table_header\"><th>Name</th><th>Last Modified</th><th>Size</th>"
 	[ -n "$mime" ] && echo -n "<th>Type</th>"
 	echo "</tr>"
-	# generate file listing table
+	# generate listing table
 	while read f; do
 		file_name_link=
-		file_name="`awk '{ print $6 }' <<<"$f"`"
+		#file_name="`awk '{ print $6 }' <<<"$f"`"
+		file_name="`awk '{ for(i=6;i<NF;i++) printf("%s ", $i); print $i; }' <<<"$f"`"
 		file_date="`awk '{ print $4 " " $5 }' <<<"$f"`"
 		file_size="`awk '{ print $3 }' <<<"$f"`"
 		file_type="`awk '{ print substr($1, 1, 1) }' <<<"$f"`"
 		file_path="$PWD"
 		grep -q "^\.$\|^index\." <<<"$file_name" && continue
 
-		# strip webroot path part
-		if [ -n "$web_dir" ]; then
-			web_dir="`tr -d "'" <<<"$web_dir"`"
-			file_path="`sed "s;$web_dir;;g" <<<"$PWD"`"
-		fi
+		# strip webroot part
+		[ -n "$web_dir" ] && file_path="`sed "s;$web_dir;;" <<<"$file_path"`"
 
 		file_name_dir=""
 		[ -z "$file_name_link" ] && file_name_link=`escape_html_chars "$file_name"`
@@ -94,12 +92,9 @@ generate_dir_table() {
 
 output_listing() {
 	template="$1"
-	web_dir="`tr -d "'" <<<"$2"`"
-	[ -n "$text_file" ] && text_file="`cat $(tr -d "'" <<<"$3")`"
-	[ -z "$template" ]
-	path="`tr -d "'" <<<"$4"`"
-	[ -n "$web_dir" ] && path="`sed "s;$web_dir;;g" <<<"$path"`"
-	listing="`generate_dir_table "$4"`"
+	web_dir="$2"
+	[ -n "$3" ] && text_file="`cat "$3"`"
+	listing="`generate_dir_table "$4" | sed -e 's/\&/\\\\\\\&/g'`"
 
 	if [ -z "$template" ]; then
 		echo "$listing"
@@ -108,7 +103,7 @@ output_listing() {
 		# {{PWD}}		The current working directory
 		# {{LISTING}}	The Listing itself
 		# {{TEXT}}		This token will be replaced by the text file
-		# 				specified with -t
+		# 				specified with -f
 		cat "$template" | sed "s;{{PWD}};$path;g" | \
 			awk '{ gsub(A, B); print; }' A="{{LISTING}}" B="$listing" | \
 			awk '{ gsub(A, B); print; }' A="{{TEXT}}" B="<pre class=\"readme\">$text_file</pre>"
