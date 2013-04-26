@@ -7,12 +7,12 @@
 
 usage() {
 	echo "Usage: $0  [-mh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
-	echo "	-a			Show hidden files"
-	echo "	-m			Include mime-type"
-	echo "	-h			Show file sizes  in human readable form"
-	echo "	-w [FILE]	Specify webroot part of the directory path to strip from links"
-	echo "	-t [FILE]	Specify template file"
-	echo "	-f [FILE]	Specify txt file to be put in the footer"
+	echo "	-a          Show hidden files"
+	echo "	-m          Include mime-type"
+	echo "	-h          Show file sizes  in human readable form"
+	echo "	-w [FILE]   Specify webroot part of the directory path to strip from links"
+	echo "	-t [FILE]   Specify template file"
+	echo "	-f [FILE]   Specify txt file to be put in the footer"
 }
 
 # process arguments
@@ -103,10 +103,10 @@ output_listing() {
 		echo "$listing"
 	else
 		# process template, it currently supports the following tokens:
-		# {{PWD}}		The current working directory
-		# {{LISTING}}	The Listing itself
-		# {{TEXT}}		This token will be replaced by the text file
-		# 				specified with -f
+		# {{PWD}}       The current working directory
+		# {{LISTING}}   The Listing itself
+		# {{TEXT}}      This token will be replaced by the text file
+		#               specified with -f
 		cat "$template" | sed "s;{{PWD}};$path;g" | \
 			awk '{ gsub(A, B); print; }' A="{{LISTING}}" B="$listing" | \
 			awk '{ gsub(A, B); print; }' A="{{TEXT}}" B="<pre class=\"readme\">$text_file</pre>"

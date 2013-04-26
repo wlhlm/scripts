@@ -14,7 +14,7 @@ it because I needed more features than the default listing of the nginx server
 (I didn't wanted to compile-in an extra module). It is based on the dirlisting
 module of `lighttpd`.
 
-__Requirements:__ `coreutils: ls; awk; sed`
+__Requirements:__ `coreutils: ls`, `awk`, `sed`
 
 - - -
 All scripts are released under a BSD license. See `LICENSE` for more details.
