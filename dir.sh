@@ -93,16 +93,23 @@ output_listing() {
 	template="$1"
 	web_dir="`tr -d "'" <<<"$2"`"
 	[ -n "$text_file" ] && text_file="`cat $(tr -d "'" <<<"$3")`"
-	[ -z "$template" ] && template="dir.tmpl"
+	[ -z "$template" ]
 	path="`tr -d "'" <<<"$4"`"
 	[ -n "$web_dir" ] && path="`sed "s;$web_dir;;g" <<<"$path"`"
 	listing="`generate_dir_table "$4"`"
 
-	# process template
-	cat "$template" | sed "s;{{PWD}};$path;g" | \
-		awk '{ gsub(A, B); print; }' A="{{LISTING}}" B="$listing" | \
-		awk '{ gsub(A, B); print; }' A="{{TEXT}}" B="<pre class=\"readme\">$text_file</pre>" | \
-		sed 's/{{.*}}//g'
+	if [ -z "$template" ]; then
+		echo "$listing"
+	else
+		# process template, it currently supports the following tokens:
+		# {{PWD}}		The current working directory
+		# {{LISTING}}	The Listing itself
+		# {{TEXT}}		This token will be replaced by the text file
+		# 				specified with -t
+		cat "$template" | sed "s;{{PWD}};$path;g" | \
+			awk '{ gsub(A, B); print; }' A="{{LISTING}}" B="$listing" | \
+			awk '{ gsub(A, B); print; }' A="{{TEXT}}" B="<pre class=\"readme\">$text_file</pre>"
+	fi
 }
 
 template="${template%\'}"
