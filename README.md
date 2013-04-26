@@ -17,4 +17,4 @@ module of `lighttpd`.
 __Requirements:__ `coreutils: ls`, `awk`, `sed`
 
 - - -
-All scripts are released under a BSD license. See `LICENSE` for more details.
+All scripts are released under a MIT license. See `LICENSE` for more details.
