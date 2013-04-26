@@ -1,5 +1,9 @@
 #!/bin/sh
 # Generate custom directory listings
+# Requirements:
+# 	coreutils: ls
+# 	sed
+# 	awk
 
 usage() {
 	echo "Usage: $0  [-mh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
@@ -55,7 +59,6 @@ generate_dir_table() {
 	# generate listing table
 	while read f; do
 		file_name_link=
-		#file_name="`awk '{ print $6 }' <<<"$f"`"
 		file_name="`awk '{ for(i=6;i<NF;i++) printf("%s ", $i); print $i; }' <<<"$f"`"
 		file_date="`awk '{ print $4 " " $5 }' <<<"$f"`"
 		file_size="`awk '{ print $3 }' <<<"$f"`"
