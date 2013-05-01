@@ -63,8 +63,8 @@ generate_dir_table() {
 	files="`ls $ls_args "$PWD" | sed 1d`"
 
 	echo "<div id=\"list\"><table id=\"table\">"
-	echo -n "<tr class=\"table_header\"><th>Name</th><th>Last Modified</th><th>Size</th>"
-	[ -n "$mime" ] && echo -n "<th>Type</th>"
+	printf "%s" "<tr class=\"table_header\"><th>Name</th><th>Last Modified</th><th>Size</th>"
+	[ -n "$mime" ] && printf "%s" "<th>Type</th>"
 	echo "</tr>"
 	# generate listing table
 	echo "$files" | while read -r f; do
@@ -94,10 +94,10 @@ generate_dir_table() {
 		# special handling for parent directory
 		[ "$file_name" = ".." ] && file_name="" && file_name_link="Parent Direcotry" && file_path=".."
 
-		echo -n "<tr class=\"listing\"><td class=\"n\"><a href=\"`escape_html_chars "$file_path/$file_name"`\">$file_name_link</a>$file_name_dir</td>"
-		echo -n "<td class=\"d\">$file_date</td>"
-		echo -n "<td class=\"s\">$file_size</td>"
-		[ -n "$mime" ] && echo -n "<td class=\"t\">`file --mime-type -b "$PWD/$file_name"`</td>"
+		printf "%s" "<tr class=\"listing\"><td class=\"n\"><a href=\"`escape_html_chars "$file_path/$file_name"`\">$file_name_link</a>$file_name_dir</td>"
+		printf "%s" "<td class=\"d\">$file_date</td>"
+		printf "%s" "<td class=\"s\">$file_size</td>"
+		[ -n "$mime" ] && printf "%s" "<td class=\"t\">`file --mime-type -b "$PWD/$file_name"`</td>"
 		echo "</tr>"
 	done
 	echo "</table></div>"
@@ -107,6 +107,7 @@ output_listing() {
 	template="$1"
 	web_dir="$2"
 	[ -n "$3" ] && text_file="`cat "$3"`"
+	# escaping ampersand for awk
 	listing="`generate_dir_table "$4" | sed -e 's/\&/\\\\\\\&/g'`"
 
 	if [ -z "$template" ]; then
