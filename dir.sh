@@ -4,9 +4,20 @@
 # 	coreutils: ls
 # 	sed
 # 	awk
+# 	file (for mime-type information
+
+# shell options
+set -e
+
+# various variables
+text_file=
+hidden=
+path=
+web_dir=
+template=
 
 usage() {
-	echo "Usage: $0  [-mh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
+	echo "Usage: $0  [-amh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
 	echo "	-a          Show hidden files"
 	echo "	-m          Include mime-type"
 	echo "	-h          Show file sizes  in human readable form"
@@ -21,7 +32,6 @@ ARGS="`getopt amhw:t:f: "$@"`"
 set -- $ARGS
 
 [ "$#" -eq "0" ] && usage && exit 1
-[ "$1" = "--" ] && usage && exit 1
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
@@ -31,7 +41,7 @@ while [ "$#" -gt 0 ]; do
 		-w)	web_dir="$2"; shift;;
 		-t)	template="$2"; shift;;
 		-f)	text_file="$2"; shift;;
-		--) shift; break;;
+		--)	shift; break;;
 		-*)	usage; exit 1;;
 	esac
 	shift
@@ -100,12 +110,12 @@ output_listing() {
 	listing="`generate_dir_table "$4" | sed -e 's/\&/\\\\\\\&/g'`"
 
 	if [ -z "$template" ]; then
-		echo "$listing"
+		printf "%s" "$listing"
 	else
 		# process template, it currently supports the following tokens:
 		# {{PWD}}       The current working directory
 		# {{LISTING}}   The Listing itself
-		# {{TEXT}}      This token will be replaced by the text file
+		# {{TEXT}}      This token will be replaced by the content of a text file
 		#               specified with -f
 		cat "$template" | sed "s;{{PWD}};$path;g" | \
 			awk '{ gsub(A, B); print; }' A="{{LISTING}}" B="$listing" | \
