@@ -4,7 +4,7 @@
 # 	coreutils: ls
 # 	sed
 # 	awk
-# 	file (for mime-type information
+# 	file (for mime-type information)
 
 # shell options
 set -e
@@ -17,7 +17,7 @@ web_dir=
 template=
 
 usage() {
-	echo "Usage: $0  [-amh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
+	echo "Usage: $0 [-amh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
 	echo "	-a          Show hidden files"
 	echo "	-m          Include mime-type"
 	echo "	-h          Show file sizes  in human readable form"
@@ -49,7 +49,7 @@ done
 
 # escape HTML characters < and &
 escape_html_chars() {
-	echo "$1" | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g'
+	echo "$1" | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/"/\&quot;/g'
 }
 
 generate_dir_table() {
@@ -80,7 +80,7 @@ generate_dir_table() {
 		[ -n "$web_dir" ] && file_path="`echo "$file_path" | sed "s;$web_dir;;"`"
 
 		file_name_dir=""
-		[ -z "$file_name_link" ] && file_name_link=`escape_html_chars "$file_name"`
+		[ -z "$file_name_link" ] && file_name_link="`escape_html_chars "$file_name"`"
 		if [ "$file_type" = "d" ]; then
 			file_name_dir="/"
 			file_size="-"
