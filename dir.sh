@@ -49,7 +49,7 @@ done
 
 # escape HTML characters < and &
 escape_html_chars() {
-	sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' <<<"$1"
+	echo "$1" | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g'
 }
 
 generate_dir_table() {
@@ -67,17 +67,17 @@ generate_dir_table() {
 	[ -n "$mime" ] && echo -n "<th>Type</th>"
 	echo "</tr>"
 	# generate listing table
-	while read f; do
+	echo "$files" | while read -r f; do
 		file_name_link=
-		file_name="`awk '{ for(i=6;i<NF;i++) printf("%s ", $i); print $i; }' <<<"$f"`"
-		file_date="`awk '{ print $4 " " $5 }' <<<"$f"`"
-		file_size="`awk '{ print $3 }' <<<"$f"`"
-		file_type="`awk '{ print substr($1, 1, 1) }' <<<"$f"`"
+		file_name="`echo "$f" | awk '{ for(i=6;i<NF;i++) printf("%s ", $i); print $i; }'`"
+		file_date="`echo "$f" | awk '{ print $4 " " $5 }'`"
+		file_size="`echo "$f" | awk '{ print $3 }'`"
+		file_type="`echo "$f" | awk '{ print substr($1, 1, 1) }'`"
 		file_path="$PWD"
-		grep -q "^\.$\|^index\." <<<"$file_name" && continue
+		echo "$file_name" | grep -q "^\.$\|^index\." && continue
 
 		# strip webroot part
-		[ -n "$web_dir" ] && file_path="`sed "s;$web_dir;;" <<<"$file_path"`"
+		[ -n "$web_dir" ] && file_path="`echo "$file_path" | sed "s;$web_dir;;"`"
 
 		file_name_dir=""
 		[ -z "$file_name_link" ] && file_name_link=`escape_html_chars "$file_name"`
@@ -99,7 +99,7 @@ generate_dir_table() {
 		echo -n "<td class=\"s\">$file_size</td>"
 		[ -n "$mime" ] && echo -n "<td class=\"t\">`file --mime-type -b "$PWD/$file_name"`</td>"
 		echo "</tr>"
-	done <<<"$files"
+	done
 	echo "</table></div>"
 }
 
