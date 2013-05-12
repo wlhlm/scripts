@@ -21,7 +21,7 @@ __Requirements:__ `coreutils: ls`, `awk`, `sed`, `file` for mime-type informatio
 dict.cc.py
 ----------
 Query the [dict.cc](http://www.dict.cc) online-dictionary. Adapted from
-[raaapha/dict.cc.py(https://github.com/raaapha/dict.cc.py) and
+[raaapha/dict.cc.py](https://github.com/raaapha/dict.cc.py) and
 reworked/extended.
 
 __Requirements:__ `python3.3`
