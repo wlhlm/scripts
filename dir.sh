@@ -2,6 +2,7 @@
 # Generate custom directory listings
 # Requirements:
 # 	coreutils: ls
+# 	readlink
 # 	sed
 # 	awk
 # 	file (for mime-type information)
@@ -118,7 +119,7 @@ output_listing() {
 		# {{LISTING}}   The Listing itself
 		# {{TEXT}}      This token will be replaced by the content of a text file
 		#               specified with -f
-		cat "$template" | sed "s;{{PWD}};$path;g" | \
+		cat "$template" | sed "s;{{PWD}};$PWD;g" | \
 			awk '{ gsub(A, B); print; }' A="{{LISTING}}" B="$listing" | \
 			awk '{ gsub(A, B); print; }' A="{{TEXT}}" B="<pre class=\"readme\">$text_file</pre>"
 	fi

@@ -16,7 +16,7 @@ it because I needed more features than the default listing of the `nginx` http
 server (I didn't wanted to compile-in an extra module). It is inspired by the
 dirlisting module of `lighttpd`.
 
-__Requirements:__ `coreutils: ls`, `awk`, `sed`
+__Requirements:__ `coreutils: ls`, `awk`, `sed`, `file` for mime-type information, `readlink`
 
 dict.cc.py
 ----------
