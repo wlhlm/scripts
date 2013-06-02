@@ -9,7 +9,7 @@ class Dict:
 	def getResponse(self, dictionary, query):
 		query = urllib.parse.quote(query)
 		# Trick to avoid dict.cc from denying the request: change User-agent to firefox's
-		request = urllib.request.Request("http://" + dictionary + ".dict.cc/?s=" + query, data=None, headers={'User-agent': 'Mozilla/5.0'})
+		request = urllib.request.Request("http://" + dictionary + ".dict.cc/?s=" + query, data=None, headers={"User-agent": "Mozilla/5.0"})
 		f = urllib.request.urlopen(request)
 		self.Response = f.read()
 
@@ -24,7 +24,7 @@ class Dict:
 			if l.find("var c1Arr") >= 0:
 				words1 = l
 			elif l.find("var c2Arr") >= 0:
-				 words2 = l
+				words2 = l
 
 		if not words1 or not words2:
 			return False

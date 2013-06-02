@@ -1,0 +1,35 @@
+#!/bin/sh
+# Change ALSA Master volume and optionally show notification
+
+# display help screen
+usage() {
+	echo "Usage: $0 [-h | --help] [-n] VOLUME_SETTING"
+	echo "  -n          Display notifiaction"
+	echo "  -h, --help  Show this message"
+}
+
+notification=
+vol_setting=
+
+# parse commandline parameters
+[ "$#" -eq "0" ] && usage && exit 1
+while [ "$#" -gt "0" ]; do
+	case "$1" in
+		-n) notification=1;;
+		-h|--help) usage; exit 0;;
+		-*) usage; exit 1;;
+		 *) vol_setting="$1";;
+	 esac
+	 shift
+ done
+
+# set volume
+amixer -q set Master "$vol_setting"
+
+if [ -n "$notification" ]; then
+	# get volume
+	curr_volume="$(amixer get Master | egrep -o '[0-9]+%')"
+	curr_volume="${curr_volume%\%}"
+	# send notification
+	notify-send -u low -h "int:value:$curr_volume" "Sound volume" "ALSA Master"
+fi

@@ -34,7 +34,7 @@ set -- $ARGS
 
 [ "$#" -eq "0" ] && usage && exit 1
 
-while [ "$#" -gt 0 ]; do
+while [ "$#" -gt "0" ]; do
 	case "$1" in
 		-a)	hidden=1;;
 		-m)	mime=1;;
