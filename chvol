@@ -1,5 +1,11 @@
 #!/bin/sh
 # Change ALSA Master volume and optionally show notification
+#
+# Settings:
+# simple mixer device
+mixer="Master"
+# notification timeout
+timeout=500
 
 # display help screen
 usage() {
@@ -8,8 +14,11 @@ usage() {
 	echo "  -h, --help  Show this message"
 }
 
+# initialize variables
+curr_settings=
 notification=
 vol_setting=
+curr_volume=
 
 # parse commandline parameters
 [ "$#" -eq "0" ] && usage && exit 1
@@ -24,12 +33,20 @@ while [ "$#" -gt "0" ]; do
  done
 
 # set volume
-amixer -q set Master "$vol_setting"
+amixer -q set $mixer "$vol_setting"
+
+# get the device settings
+curr_settings=$(amixer get $mixer)
 
 if [ -n "$notification" ]; then
 	# get volume
-	curr_volume="$(amixer get Master | egrep -o '[0-9]+%')"
+	curr_volume="$(echo $curr_settings | egrep -o '[0-9]+%')"
 	curr_volume="${curr_volume%\%}"
-	# send notification
-	notify-send -u low -h "int:value:$curr_volume" "Sound volume" "ALSA Master"
+
+	# send notification; check whether muted or not
+	if ( echo $curr_settings | grep -q "\[off\]" ); then
+		notify-send -t $timeout -u low -h "int:value:$curr_volume" -h "string:synchronous:volume" "Sound volume" "ALSA Master [MUTE]"
+	else
+		notify-send -t $timeout -u low -h "int:value:$curr_volume" -h "string:synchronous:volume" "Sound volume" "ALSA Master"
+	fi
 fi
