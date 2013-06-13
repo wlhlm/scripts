@@ -1,16 +1,17 @@
 #!/bin/sh
-# Generate custom directory listings
+# Generate custom directory listings.
 # Requirements:
 # 	coreutils: ls
+# 	getopt(1)
 # 	readlink
 # 	sed
 # 	awk
 # 	file (for mime-type information)
 
-# shell options
+# Set shell options.
 set -e
 
-# various variables
+# Various variables
 text_file=
 hidden=
 path=
@@ -27,7 +28,7 @@ usage() {
 	echo "	-f [FILE]   Specify txt file to be put in the footer"
 }
 
-# process arguments
+# Process arguments
 ARGS="$(getopt amhw:t:f: "$@")"
 [ "$?" -ne "0" ] && usage && exit 1
 set -- $ARGS
@@ -48,27 +49,30 @@ while [ "$#" -gt "0" ]; do
 	shift
 done
 
-# escape HTML characters < and &
+# Escape HTML characters <, " and &.
 escape_html_chars() {
 	echo "$1" | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/"/\&quot;/g'
 }
 
+# Generate a HTML-table with the directory listing.
 generate_dir_table() {
-	# get specified directory
+	# Get specified directory.
 	PWD="$(readlink -nf "$1")"
 
-	# get file listing
+	# Get file listing.
 	ls_args="-gc --no-group --time-style=long-iso --group-directories-first"
 	[ -n "$human" ] && ls_args="$ls_args --human-readable"
 	[ -n "$hidden" ] && ls_args="$ls_args --all"
 	files="$(ls $ls_args "$PWD" | sed 1d)"
 
+	# Print table header.
 	echo "<div id=\"list\"><table id=\"table\">"
 	printf "%s" "<tr class=\"table_header\"><th>Name</th><th>Last Modified</th><th>Size</th>"
 	[ -n "$mime" ] && printf "%s" "<th>Type</th>"
 	echo "</tr>"
-	# generate listing table
+	# Generate file entries.
 	echo "$files" | while read -r f; do
+		# Get file properties.
 		file_name_link=
 		file_name="$(echo "$f" | awk '{ for(i=6;i<NF;i++) printf("%s ", $i); print $i; }')"
 		file_date="$(echo "$f" | awk '{ print $4 " " $5 }')"
@@ -77,9 +81,10 @@ generate_dir_table() {
 		file_path="$PWD"
 		echo "$file_name" | grep -q '^\.$\|^index\.' && continue
 
-		# strip webroot part
+		# Strip webroot part of the file path.
 		[ -n "$web_dir" ] && file_path="$(echo "$file_path" | sed "s;$web_dir;;")"
 
+		# Special treatment for directories and links.
 		file_name_dir=""
 		[ -z "$file_name_link" ] && file_name_link="$(escape_html_chars "$file_name")"
 		if [ "$file_type" = "d" ]; then
@@ -92,7 +97,7 @@ generate_dir_table() {
 			fi
 		fi
 
-		# special handling for parent directory
+		# Special treatment for the parent directory.
 		[ "$file_name" = ".." ] && file_name="" && file_name_link="Parent Direcotry" && file_path=".."
 
 		printf "%s" "<tr class=\"listing\"><td class=\"n\"><a href=\"$(escape_html_chars "$file_path/$file_name")\">$file_name_link</a>$file_name_dir</td>"
@@ -104,22 +109,23 @@ generate_dir_table() {
 	echo "</table></div>"
 }
 
+# Print the directory listing embeded into a template file.
 output_listing() {
 	template="$1"
 	web_dir="$2"
 	[ -n "$3" ] && text_file="$(cat "$3")"
-	# escaping ampersand for awk
+	# Escaping ampersand for awk
 	listing="$(generate_dir_table "$4" | sed -e 's/\&/\\\\\\\&/g')"
 
 	if [ -z "$template" ]; then
 		printf "%s" "$listing"
 	else
-		# process template, it currently supports the following tokens:
+		# Process template, it currently supports the following tokens:
 		# {{PWD}}       The current working directory
 		# {{LISTING}}   The Listing itself
 		# {{TEXT}}      This token will be replaced by the content of a text file
 		#               specified with -f
-		<"$template" sed "s;{{PWD}};$PWD;g" | \
+		< "$template" sed "s;{{PWD}};$PWD;g" | \
 			awk '{ gsub(A, B); print; }' A="{{LISTING}}" B="$listing" | \
 			awk '{ gsub(A, B); print; }' A="{{TEXT}}" B="<pre class=\"readme\">$text_file</pre>"
 	fi

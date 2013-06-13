@@ -1,5 +1,7 @@
 #!/bin/bash
-# Automatically switch between different keyboard layouts
+# Automatically switch between different keyboard layouts.
+#
+# Requirements: setxkbmap
 
 # Layouts to switch to
 layouts=("us" "de")
@@ -7,11 +9,14 @@ layouts=("us" "de")
 # Get current layout
 curr=`setxkbmap -query | grep ^layout | awk '{ print $2 }'`
 
-# Get next layout; wrap around if it's the last one
+# Get the next layout.
 for i in `seq 0 $((${#layouts[@]}-1))`; do
 	[ "${layouts[$i]}" = "$curr" ] && next=$(($i+1))
 done
+# Use the first keyboard layout if we're using a layout that is not on the
+# list.
 [ -z $next ] && next=0
+# Wrap around if we're using the last keyboard layout.
 [ $next -eq ${#layouts[@]} ] && next=0
 
 # Finally set keyboard layout

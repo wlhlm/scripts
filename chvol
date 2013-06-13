@@ -35,15 +35,15 @@ while [ "$#" -gt "0" ]; do
 # set volume
 amixer -q set $mixer "$vol_setting"
 
-# get the device settings
+# Get the device settings.
 curr_settings=$(amixer get $mixer)
 
 if [ -n "$notification" ]; then
-	# get volume
+	# Get volume
 	curr_volume="$(echo $curr_settings | egrep -o '[0-9]+%')"
 	curr_volume="${curr_volume%\%}"
 
-	# send notification; check whether muted or not
+	# Send notification; check whether the device is muted or not.
 	if ( echo $curr_settings | grep -q "\[off\]" ); then
 		notify-send -t $timeout -u low -h "int:value:$curr_volume" -h "string:synchronous:volume" "Sound volume" "ALSA Master [MUTE]"
 	else
