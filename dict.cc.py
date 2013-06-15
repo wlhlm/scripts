@@ -31,7 +31,7 @@ class Dict:
 			elif l.find("var c2Arr") >= 0:
 				words2 = l
 
-		# Stop when we couldn't find anything -> it could be a server error.
+		# Stop when we cannot find anything -> it could be a server error.
 		if not words1 or not words2:
 			return False
 
@@ -69,7 +69,6 @@ class Dict:
 			else:
 				print("{0:{width}}  {1}".format(self.word_list[0][i], self.word_list[1][i], width=length))
 
-
 if __name__ == "__main__":
 	# Parse commandline
 	arg_parser = OptionParser(usage="Usage: %prog [options] [search]")
@@ -81,7 +80,7 @@ if __name__ == "__main__":
 						  help="only show NUMBER of results, default=15")
 	arg_parser.add_option("-d", "--dictionary",
 						  type="str", default="ende",
-						  help="choose dictionary (e.g. 'enfr' for English/French dictionary), default=ende")
+						  help="choose dictionary (for example 'enfr' for English/French dictionary), default=ende")
 	(options, arguments) = arg_parser.parse_args()
 
 	# Check whether a search query is missing.
