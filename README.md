@@ -34,6 +34,14 @@ reworked/extended.
 
 __Requirements:__ `python3.3`
 
+lock
+----
+Trivial script for changing the power state of the computer but enabling a
+screenlocker beforehand.
+
+__Requirements:__ `systemctl` (systemd), a screenlocker (for example slock or
+i3lock)
+
 - - -
 All scripts are released under a MIT license. See `LICENSE` for more
 details.
