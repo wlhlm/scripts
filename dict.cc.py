@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import urllib.request, urllib.error, urllib.parse
 from re import findall
 from sys import exit

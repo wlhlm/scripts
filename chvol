@@ -1,6 +1,10 @@
 #!/bin/sh
 # Change ALSA Master volume and optionally show notification
 #
+# Requirements:
+# 	amixer
+# 	notify-send (libnotify)
+
 # Settings:
 # simple mixer device
 mixer="Master"
@@ -10,7 +14,7 @@ timeout=500
 # display help screen
 usage() {
 	echo "Usage: $0 [-h | --help] [-n] VOLUME_SETTING"
-	echo "  -n          Display notifiaction"
+	echo "  -n          Display notifiction"
 	echo "  -h, --help  Show this message"
 }
 
@@ -45,8 +49,8 @@ if [ -n "$notification" ]; then
 
 	# Send notification; check whether the device is muted or not.
 	if ( echo $curr_settings | grep -q "\[off\]" ); then
-		notify-send -t $timeout -u low -h "int:value:$curr_volume" -h "string:synchronous:volume" "Sound volume" "ALSA Master [MUTE]"
+		notify-send -t $timeout -u low -h "int:value:$curr_volume" -h "string:synchronous:volume" "Sound volume" "ALSA $mixer [MUTE]"
 	else
-		notify-send -t $timeout -u low -h "int:value:$curr_volume" -h "string:synchronous:volume" "Sound volume" "ALSA Master"
+		notify-send -t $timeout -u low -h "int:value:$curr_volume" -h "string:synchronous:volume" "Sound volume" "ALSA $mixer"
 	fi
 fi

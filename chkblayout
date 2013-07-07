@@ -7,10 +7,10 @@
 layouts=("us" "de")
 
 # Get current layout
-curr=`setxkbmap -query | grep ^layout | awk '{ print $2 }'`
+curr="$(setxkbmap -query | grep ^layout | awk '{ print $2 }')"
 
 # Get the next layout.
-for i in `seq 0 $((${#layouts[@]}-1))`; do
+for i in $(seq 0 $((${#layouts[@]}-1))); do
 	[ "${layouts[$i]}" = "$curr" ] && next=$(($i+1))
 done
 # Use the first keyboard layout if we're using a layout that is not on the
