@@ -37,10 +37,10 @@ class Dict:
 
 		# Regex to extract the word list.
 		# pattern = "\"[A-Za-z \.()\-\?ßäöüÄÖÜéáíçÇâêî\']*\""
-		pattern = "\"[^,]+\""
+		pattern = r'"(?:[^"\\]|\\.)*"'
 
 		# Return list of matching strings.
-		self.word_list = [findall(pattern, words1), findall(pattern, words2)]
+		self.word_list = [findall(pattern, words1)[1:], findall(pattern, words2)[1:]]
 
 		# Restrict the wordlists to a maximum of 'results'.
 		if len(self.word_list[0]) > results:
