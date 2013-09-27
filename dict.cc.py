@@ -39,7 +39,8 @@ class Dict:
 		# pattern = "\"[A-Za-z \.()\-\?ßäöüÄÖÜéáíçÇâêî\']*\""
 		pattern = r'"(?:[^"\\]|\\.)*"'
 
-		# Return list of matching strings.
+		# Return list of matching strings; remove first element since it's
+		# empty.
 		self.word_list = [findall(pattern, words1)[1:], findall(pattern, words2)[1:]]
 
 		# Restrict the wordlists to a maximum of 'results'.
@@ -72,15 +73,9 @@ class Dict:
 if __name__ == "__main__":
 	# Parse commandline
 	arg_parser = OptionParser(usage="Usage: %prog [options] [search]")
-	arg_parser.add_option("-q", "--quote",
-						  action="store_true", default=False,
-						  help="quote results for better shell scripting")
-	arg_parser.add_option("-r", "--results",
-						  type="int", default=15, metavar="NUMBER",
-						  help="only show NUMBER of results, default=15")
-	arg_parser.add_option("-d", "--dictionary",
-						  type="str", default="ende",
-						  help="choose dictionary (for example 'enfr' for English/French dictionary), default=ende")
+	arg_parser.add_option("-q", "--quote", action="store_true", default=False, help="quote results for better shell scripting")
+	arg_parser.add_option("-r", "--results", type="int", default=15, metavar="NUMBER", help="only show NUMBER of results, default=15")
+	arg_parser.add_option("-d", "--dictionary", type="str", default="ende", help="choose dictionary (for example 'enfr' for English/French dictionary), default=ende")
 	(options, arguments) = arg_parser.parse_args()
 
 	# Check whether a search query is missing.
