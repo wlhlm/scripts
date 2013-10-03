@@ -33,7 +33,7 @@ ARGS="$(getopt amhw:t:f: "$@")"
 [ "$?" -ne "0" ] && usage && exit 1
 set -- $ARGS
 
-[ "$#" -eq "0" ] && usage && exit 1
+[ "$#" -eq "1" ] && usage && exit 1
 
 while [ "$#" -gt "0" ]; do
 	case "$1" in
