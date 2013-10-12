@@ -1,7 +1,7 @@
 #!/bin/sh
 # Generate custom directory listings.
 # Requirements:
-# 	coreutils: ls
+#	find
 # 	getopt(1)
 # 	readlink
 # 	sed
@@ -9,27 +9,27 @@
 # 	file (for mime-type information)
 
 # Set shell options.
-set -e
+set -ef
 
-# Various variables
+# Initialize various variables
 text_file=
 hidden=
-path=
-web_dir=
+find_args=
 template=
 
 usage() {
-	echo "Usage: $0 [-amh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR"
-	echo "	-a          Show hidden files"
-	echo "	-m          Include mime-type"
-	echo "	-h          Show file sizes  in human readable form"
-	echo "	-w [FILE]   Specify webroot part of the directory path to strip from links"
-	echo "	-t [FILE]   Specify template file"
-	echo "	-f [FILE]   Specify txt file to be put in the footer"
+	cat <<END
+Usage: $0 [-amh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR
+    -a          Show hidden files
+    -m          Include mime-type
+    -h          Show file sizes  in human readable form (default, in KByte
+    -t [FILE]   Specify template file
+    -f [FILE]   Specify txt file to be put in the footer
+END
 }
 
 # Process arguments
-ARGS="$(getopt amhw:t:f: "$@")"
+ARGS="$(getopt af:hmt: "$@")"
 [ "$?" -ne "0" ] && usage && exit 1
 set -- $ARGS
 
@@ -40,7 +40,6 @@ while [ "$#" -gt "0" ]; do
 		-a)	hidden=1;;
 		-m)	mime=1;;
 		-h)	human=1;;
-		-w)	web_dir="$2"; shift;;
 		-t)	template="$2"; shift;;
 		-f)	text_file="$2"; shift;;
 		--)	shift; break;;
@@ -49,73 +48,78 @@ while [ "$#" -gt "0" ]; do
 	shift
 done
 
-# Escape HTML characters <, " and &.
+[ -z "$1" ] && usage && exit 1
+
+# Escape HTML characters <, >, " and &.
 escape_html_chars() {
-	echo "$1" | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/"/\&quot;/g'
+	printf "%s" "$1" | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g'
+}
+
+# Simple function to make file sizes human readable, since we can't rely on
+# non-POSIX -h
+human_readable() {
+	if [ "$1" -lt 1024 ]; then
+		printf "%d%s" "$1" "K"
+	elif [ "$1" -ge 1024 -a "$1" -lt "$((1024**2))" ]; then
+		printf "%d%s" "$(($1 / 1024))" "M"
+	else
+		printf "%d%s" "$(($1 / (1024**2)))" "G"
+	fi
 }
 
 # Generate a HTML-table with the directory listing.
 generate_dir_table() {
-	# Get specified directory.
-	PWD="$(readlink -nf "$1")"
+	cd "$(readlink -nf "$1")"
 
-	# Get file listing.
-	ls_args="-gc --no-group --time-style=long-iso --group-directories-first"
-	[ -n "$human" ] && ls_args="$ls_args --human-readable"
-	[ -n "$hidden" ] && ls_args="$ls_args --all"
-	files="$(ls $ls_args "$PWD" | sed 1d)"
+	# Get listing seperate for directories and files.
+	[ -z "$hidden" ] && find_args="$find_args -a ( ! -name .* )"
+	files="$(find . \( ! -name . -prune \) -type f $find_args)"
+	dir="$(find . \( ! -name . -prune \) -type d $find_args)"
 
 	# Print table header.
-	echo "<div id=\"list\"><table id=\"table\">"
-	printf "%s" "<tr class=\"table_header\"><th>Name</th><th>Last Modified</th><th>Size</th>"
+	printf "%s\n" "<div id=\"list\"><table id=\"table\">"
+	printf "%s" "<tr class=\"table_header\"><th>Name</th><th>Size</th>"
 	[ -n "$mime" ] && printf "%s" "<th>Type</th>"
-	echo "</tr>"
-	# Generate file entries.
-	echo "$files" | while read -r f; do
-		# Get file properties.
-		file_name_link=
-		file_name="$(echo "$f" | awk '{ for(i=6;i<NF;i++) printf("%s ", $i); print $i; }')"
-		file_date="$(echo "$f" | awk '{ print $4 " " $5 }')"
-		file_size="$(echo "$f" | awk '{ print $3 }')"
-		file_type="$(echo "$f" | awk '{ print substr($1, 1, 1) }')"
-		file_path="$PWD"
-		echo "$file_name" | grep -q '^\.$\|^index\.' && continue
+	printf "%s\n" "</tr>"
 
-		# Strip webroot part of the file path.
-		[ -n "$web_dir" ] && file_path="$(echo "$file_path" | sed "s;$web_dir;;")"
+	# Generate directory entries.
+	printf "%s" "$dir" | while read -r d; do
+		# Get directory properties.
+		dir_name="${d##*/}"
+		dir_path="${d%/*}"
+		dir_name_link="$(escape_html_chars "$dir_name")"
 
-		# Special treatment for directories and links.
-		file_name_dir=""
-		[ -z "$file_name_link" ] && file_name_link="$(escape_html_chars "$file_name")"
-		if [ "$file_type" = "d" ]; then
-			file_name_dir="/"
-			file_size="-"
-		else
-			if [ "$file_type" = "l" ]; then
-				file_name_link="<span class=\"link\">$file_name_link</span>"
-				file_size="-"
-			fi
-		fi
-
-		# Special treatment for the parent directory.
-		[ "$file_name" = ".." ] && file_name="" && file_name_link="Parent Direcotry" && file_path=".."
-
-		printf "%s" "<tr class=\"listing\"><td class=\"n\"><a href=\"$(escape_html_chars "$file_path/$file_name")\">$file_name_link</a>$file_name_dir</td>"
-		printf "%s" "<td class=\"d\">$file_date</td>"
-		printf "%s" "<td class=\"s\">$file_size</td>"
-		[ -n "$mime" ] && printf "%s" "<td class=\"t\">$(file --mime-type -b "$PWD/$file_name")</td>"
-		echo "</tr>"
+		printf "%s" "<tr class=\"listing\"><td class=\"n\"><a href=\"$(escape_html_chars "$dir_path/$dir_name")\">$dir_name_link</a>/</td>"
+		printf "%s" "<td class=\"s\">-</td>"
+		[ -n "$mime" ] && printf "%s" "<td class=\"t\">Directory</td>"
+		printf "%s\n" "</tr>"
 	done
-	echo "</table></div>"
+
+	# Generate directory entries.
+	printf "%s" "$files" | while read -r f; do
+		# Get file properties.
+		file_name="${f##*/}"
+		file_path="${f%/*}"
+		file_size="$(du -sk "$f" | cut -f 1)"
+		file_name_link="$(escape_html_chars "$file_name")"
+		[ -n "$human" ] && file_size="$(human_readable "$file_size")"
+		# Hide index.html since it's probably going to be the listing itself.
+		printf "%s" "$file_name" | grep -q '^index\.' && continue
+
+		printf "%s" "<tr class=\"listing\"><td class=\"n\"><a href=\"$(escape_html_chars "$file_path/$file_name")\">$file_name_link</a></td>"
+		printf "%s" "<td class=\"s\">$file_size</td>"
+		[ -n "$mime" ] && printf "%s" "<td class=\"t\">$(file --mime-type -b "$file_path/$file_name")</td>"
+		printf "%s\n" "</tr>"
+	done
+	printf "%s\n" "</table></div>"
 }
 
-# Print the directory listing embeded into a template file.
+# Print the directory listing embedded into a template file.
 output_listing() {
 	template="$1"
-	web_dir="$2"
-	[ -n "$3" ] && text_file="$(cat "$3")"
-	# Escaping ampersand for awk
-	listing="$(generate_dir_table "$4" | sed -e 's/\&/\\\\\\\&/g')"
+	# Escaping ampersand and slash for awk.
+	[ -n "$2" ] && text_file="$(sed -e 's/\\/\\\\/g' -e 's/\&/\\\\\&/g' <"$3")"
+	listing="$(generate_dir_table "$4" | sed -e 's/\\/\\\\/g' -e 's/\&/\\\\\&/g')"
 
 	if [ -z "$template" ]; then
 		printf "%s" "$listing"
@@ -132,4 +136,5 @@ output_listing() {
 }
 
 # Generate listing
-output_listing "$template" "$web_dir" "$text_file" "$1"
+output_listing "$template" "$text_file" "$1"
+
