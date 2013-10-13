@@ -24,7 +24,8 @@ Usage: $0 [-amh] [-w WEBROOT] [-t TEMPLATE] [-f FILE] DIR
     -m          Include mime-type
     -h          Show file sizes  in human readable form (default, in KByte
     -t [FILE]   Specify template file
-    -f [FILE]   Specify txt file to be put in the footer
+    -f [FILE]   Specify txt file to be put in the footer (requires template file
+                to be given, otherwise useless)
 END
 }
 
@@ -116,14 +117,22 @@ generate_dir_table() {
 
 # Print the directory listing embedded into a template file.
 output_listing() {
-	template="$1"
-	# Escaping ampersand and slash for awk.
-	[ -n "$2" ] && text_file="$(sed -e 's/\\/\\\\/g' -e 's/\&/\\\\\&/g' <"$3")"
-	listing="$(generate_dir_table "$4" | sed -e 's/\\/\\\\/g' -e 's/\&/\\\\\&/g')"
+	listing="$(generate_dir_table "$1")"
+	template="$2"
+	text_file="$3"
 
 	if [ -z "$template" ]; then
-		printf "%s" "$listing"
+		cat <<END
+$listing
+END
 	else
+		# Escaping ampersand and slash for awk.
+		[ -n "$text_file" ] && text_file="$(sed -e 's/\\/\\\\/g' -e 's/\&/\\\\\&/g' <"$text_file")"
+		listing="$(sed -e 's/\\/\\\\/g' -e 's/\&/\\\\\&/g' <<END
+$listing
+END
+)"
+
 		# Process template, it currently supports the following tokens:
 		# {{PWD}}       The current working directory
 		# {{LISTING}}   The Listing itself
@@ -136,5 +145,5 @@ output_listing() {
 }
 
 # Generate listing
-output_listing "$template" "$text_file" "$1"
+output_listing "$1" "$template" "$text_file"
 
