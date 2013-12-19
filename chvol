@@ -10,17 +10,22 @@
 mixer="Master"
 # notification timeout
 timeout=500
+# programm names
+NOTIFY="notify-send"
+SOUND="mpg123 -q"
 
 # display help screen
 usage() {
-	echo "Usage: $0 [-h | --help] [-n] VOLUME_SETTING"
+	echo "Usage: $0 [-h | --help] [-n] [-s FILE] VOLUME_SETTING"
 	echo "  -n          Display notifiction"
+	echo "  -s          Play a sound when changing volume"
 	echo "  -h, --help  Show this message"
 }
 
 # initialize variables
 curr_settings=
 notification=
+sound_file=
 vol_setting=
 curr_volume=
 
@@ -29,6 +34,7 @@ curr_volume=
 while [ "$#" -gt "0" ]; do
 	case "$1" in
 		-n) notification=1;;
+		-s) sound_file="$2"; shift;;
 		-h|--help) usage; exit 0;;
 		-*) usage; exit 1;;
 		 *) vol_setting="$1";;
@@ -38,6 +44,7 @@ while [ "$#" -gt "0" ]; do
 
 # set volume
 amixer -q set $mixer "$vol_setting"
+[ -n "$sound_file" ] && $SOUND "$sound_file"
 
 # Get the device settings.
 curr_settings=$(amixer get $mixer)
@@ -49,8 +56,8 @@ if [ -n "$notification" ]; then
 
 	# Send notification; check whether the device is muted or not.
 	if ( echo $curr_settings | grep -q "\[off\]" ); then
-		notify-send -t $timeout -u low -h "int:value:$curr_volume" "Sound volume" "ALSA $mixer [MUTE]"
+		$NOTIFY -t $timeout -u low -h "int:value:$curr_volume" "Sound volume" "ALSA $mixer [MUTE]"
 	else
-		notify-send -t $timeout -u low -h "int:value:$curr_volume" "Sound volume" "ALSA $mixer"
+		$NOTIFY -t $timeout -u low -h "int:value:$curr_volume" "Sound volume" "ALSA $mixer"
 	fi
 fi
