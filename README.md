@@ -16,6 +16,12 @@ display a notification showing the volume as progress.
 
 __Requirements:__ `egrep`, `amixer`, `notify-send` (libnotify)
 
+burncast
+--------
+Utility to burn audio files longer than 80 minutes on an AudioCD. There is no magic involved with squeezing overlong files on a CD, the script just cuts off after 79 minutes (configurable).
+
+__Requirements:__ `ffmpeg`, `wodim` (cdrkit/cdrtools), `mktemp`
+
 dir.sh
 ------
 Generate a custom directory listing. Most usable for web servers. I've

@@ -1,0 +1,90 @@
+#/bin/sh
+# Cut long audio files longer than the normal CD length and burn them on CD
+#
+# Requirements:
+#	cdrkit/cdrtools (wodim)
+#	ffmpeg
+#	mktemp
+
+# Set shell options
+set -ef
+
+# Setting:
+# set the length of a CD (can also be done with the `-l` option)
+cd_length="01:19:00"
+# path to disk
+cd_path="/dev/sr0"
+# conversion utility
+CONV_PROG="ffmpeg"
+CONV_ARG="-y -loglevel error -acodec pcm_s16le -ac 2 -f wav"
+# burning utility
+BURN_PROG="wodim"
+BURN_ARG="-s -dao -swab -pad"
+# flag for burning utility to only test burn
+test_arg="-dummy"
+
+# display help screen
+usage() {
+	echo "Usage: $0 [-h | --help] [-l TIME] FILE"
+	echo "  -d          Path to disk device to burn file on (default /dev/sr0)"
+	echo "  -l          Maximum audio length per CD (default 01:19:00)"
+	echo "  -t          Make a test run before burning on a physical disk"
+	echo "  -h, --help  Show this message"
+}
+
+convert() {
+	prog="$1"
+	args="$2"
+	time="$3"
+	out_file="$4"
+
+	echo "Converting to CD audio..."
+	echo $prog $args $time "$out_file"
+	$prog $args $time "$out_file"
+}
+
+burn() {
+	prog="$1"
+	args="$2"
+	disk="$3"
+	file="$4"
+
+	echo "Burning on disk..."
+	echo $prog $args $disk "$file"
+	$prog $args $disk "$file"
+}
+
+finish() {
+	echo "Removing temporary files..."
+	rm -f "$conv"
+}
+
+# initialize variables
+audio_file=
+
+# parse commandline parameters
+[ "$#" -eq "0" ] && usage && exit 1
+while [ "$#" -gt "0" ]; do
+	case "$1" in
+		-d) cd_path="$2"; shift;;
+		-l) cd_length="$2"; shift;;
+		-t) test_run=1;;
+		-h|--help) usage; exit 0;;
+		-*) usage; exit 1;;
+		*) audio_file="$1"; break;;
+	esac
+	shift
+done
+
+# used for conversion; temporary
+conv="$(mktemp).wav"
+[ "$?" -ne "0" ] && echo "Cannot create temporary file..." && exit 1
+trap finish EXIT
+
+[ -z "$test_run" ] && test_arg=""
+
+convert "$CONV_PROG" "-i ${audio_file} ${CONV_ARG}" "-t ${cd_length}" "$conv"
+[ "$?" -ne "0" ] && echo "Error when converting audio file..." && exit 1
+
+burn "$BURN_PROG" "${test_arg} ${BURN_ARG}" "dev=${cd_path}" "$conv"
+[ "$?" -ne "0" ] && echo "Error when burning to CD..." && exit 1

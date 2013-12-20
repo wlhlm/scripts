@@ -5,6 +5,9 @@
 # 	amixer
 # 	notify-send (libnotify)
 
+# Set shell options
+set -ef
+
 # Settings:
 # simple mixer device
 mixer="Master"
