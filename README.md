@@ -20,7 +20,7 @@ burncast
 --------
 Utility to burn audio files longer than 80 minutes on an AudioCD. There is no magic involved with squeezing overlong files on a CD, the script just cuts off after 79 minutes (configurable).
 
-__Requirements:__ `ffmpeg`, `wodim` (cdrkit/cdrtools), `mktemp`
+__Requirements:__ `ffmpeg`, `ffprobe` (ffmpeg), `wodim` (cdrkit/cdrtools), `mktemp`
 
 dir.sh
 ------
