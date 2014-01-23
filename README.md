@@ -3,6 +3,12 @@ scripts
 
 Collection of various shell scripts.
 
+burncast
+--------
+Utility to burn audio files longer than 80 minutes on an AudioCD. There is no magic involved with squeezing overlong files on a CD, the script just cuts off after 79 minutes (configurable).
+
+__Requirements:__ `ffmpeg`, `ffprobe` (ffmpeg), `wodim` (cdrkit/cdrtools), `mktemp`
+
 chkblayout
 ----------
 Switch keyboard layout. For use in window managers/desktop environments.
@@ -15,12 +21,6 @@ Change the volume of the ALSA Master device. It also can optionally
 display a notification showing the volume as progress.
 
 __Requirements:__ `egrep`, `amixer`, `notify-send` (libnotify)
-
-burncast
---------
-Utility to burn audio files longer than 80 minutes on an AudioCD. There is no magic involved with squeezing overlong files on a CD, the script just cuts off after 79 minutes (configurable).
-
-__Requirements:__ `ffmpeg`, `ffprobe` (ffmpeg), `wodim` (cdrkit/cdrtools), `mktemp`
 
 dir.sh
 ------
