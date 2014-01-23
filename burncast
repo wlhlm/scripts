@@ -110,7 +110,7 @@ burn() {
 	disk="$3"
 	dir="$4"
 
-    files="$(find "$dir" -type f)"
+    files="$(find "$dir" -type f | sort)"
 
 	echo "Burning on disk..."
 	echo $prog $args $disk $files
