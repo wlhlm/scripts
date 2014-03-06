@@ -38,7 +38,7 @@ Query the [dict.cc](http://www.dict.cc) online-dictionary. Adapted from
 [raaapha/dict.cc.py](https://github.com/raaapha/dict.cc.py) and
 reworked/extended.
 
-__Requirements:__ `python3.3`
+__Requirements:__ `python>=3.3`
 
 lock
 ----

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import signal
 import urllib.request, urllib.error, urllib.parse
 from re import findall
 from sys import exit
@@ -70,7 +71,14 @@ class Dict:
 			else:
 				print("{0:{width}}  {1}".format(self.word_list[0][i], self.word_list[1][i], width=length))
 
+def handleSIGINT(signal, frame):
+    print("")
+    exit(1)
+
 if __name__ == "__main__":
+	# Setup signal handler to avoid stacktrace
+	signal.signal(signal.SIGINT, handleSIGINT)
+
 	# Parse commandline
 	arg_parser = OptionParser(usage="Usage: %prog [options] [search]")
 	arg_parser.add_option("-q", "--quote", action="store_true", default=False, help="quote results for better shell scripting")
