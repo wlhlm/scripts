@@ -63,7 +63,7 @@ splits() {
 		[ "$length" -gt "$cd_length" ] && length="$cd_length"
 		splits="$(($length/$split))"
 		[ "$(($length%$split))" -lt "$(($split/2))" ] && ((splits=$splits-1))
-        [ "$splits" -lt "1" ] && splits=1
+		[ "$splits" -lt "1" ] && splits=1
 
 		echo "$splits"
 	fi
