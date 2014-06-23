@@ -54,22 +54,10 @@ class Dict:
 			for i in range(0, len(row)):
 				row[i] = row[i].strip("\"")
 
-	# Print the search results. When 'quote' is set, wrap words in singlequotes
-	# for better shell script handling.
-	def printResults(self, quote=False):
-		# Look for the biggest word in the first column to set the spacing
-		# between the two columns.
-		length = 0
-		for w in self.word_list[0]:
-			length = len(w) if len(w) > length else length
-
-		# Print the results in two space-separated columns and quote if
-		# neccessary.
+	# Print the search results (tab separated)
+	def printResults(self):
 		for i in range(0, len(self.word_list[0])):
-			if quote:
-				print("{0:{width}}  {1}".format("'" + self.word_list[0][i] + "'", "'" + self.word_list[1][i] + "'", width=(length+2)))
-			else:
-				print("{0:{width}}  {1}".format(self.word_list[0][i], self.word_list[1][i], width=length))
+			print("{0}\t{1}".format(self.word_list[0][i], self.word_list[1][i]))
 
 def handleSIGINT(signal, frame):
     print("")
@@ -81,7 +69,6 @@ if __name__ == "__main__":
 
 	# Parse commandline
 	arg_parser = OptionParser(usage="Usage: %prog [options] [search]")
-	arg_parser.add_option("-q", "--quote", action="store_true", default=False, help="quote results for better shell scripting")
 	arg_parser.add_option("-r", "--results", type="int", default=15, metavar="NUMBER", help="only show NUMBER of results, default=15")
 	arg_parser.add_option("-d", "--dictionary", type="str", default="ende", help="choose dictionary (for example 'enfr' for English/French dictionary), default=ende")
 	(options, arguments) = arg_parser.parse_args()
@@ -100,4 +87,4 @@ if __name__ == "__main__":
 			exit(1)
 
 		# Print out a list of the results.
-		myDict.printResults(quote=options.quote)
+		myDict.printResults()
