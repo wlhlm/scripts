@@ -41,8 +41,8 @@ Query the [dict.cc](http://www.dict.cc) online-dictionary. Adapted from
 [raaapha/dict.cc.py](https://github.com/raaapha/dict.cc.py) and
 reworked/extended.
 
-The script's output is tab-delimited, meaning each line begins with
-searched phrase, than a tab character and the the translation. This
+The script's output is tab-delimited, meaning each line begins with the
+searched phrase, then a tab character and then the translation. This
 normally does not look very pleasing, so I recommend piping the output
 to `column`:
 ```bash
