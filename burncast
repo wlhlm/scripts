@@ -40,7 +40,6 @@ usage() {
 	echo "              TIME in seconds. If TIME equals 0, no split is made."
 	echo "              (default 600)."
 	echo "  -t          Make a test run before burning on a physical disk"
-	echo "  -b          Ring the bell"
 	echo "  -h, --help  Show this message"
 }
 
@@ -126,7 +125,6 @@ finish() {
 # initialize variables
 audio_file=
 splits=
-bell=
 
 # parse commandline parameters
 [ "$#" -eq "0" ] && usage && exit 1
@@ -136,7 +134,6 @@ while [ "$#" -gt "0" ]; do
 		-l) cd_length="$2"; shift;;
 		-s) split_length="$2"; shift;;
 		-t) test_run=1;;
-		-b) bell=1;;
 		-h|--help) usage; exit 0;;
 		-*) usage; exit 1;;
 		*) audio_file="$1"; break;;
@@ -159,5 +156,3 @@ convert "$CONV_PROG" "-i ${audio_file} ${CONV_ARG}" "$CONV_START" "$cd_length" "
 
 burn "$BURN_PROG" "${test_arg} ${BURN_ARG}" "dev=${cd_path}" "$conv"
 [ "$?" -ne "0" ] && echo "Error when burning to CD..." && exit 1
-
-[ -n "$bell" ] && printf '\a'
