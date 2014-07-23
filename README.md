@@ -59,6 +59,13 @@ a screenlocker beforehand.
 __Requirements:__ `systemctl` (systemd), a screenlocker (for example
 slock or i3lock)
 
+twwatch.py
+----------
+Script to browse twitch.tv more conveniently using `dmenu`. The actual
+streams are then played via `livestreamer`.
+
+__Requirements:__ `python3`, `dmenu`, `livestreamer`
+
 - - -
 All scripts are released under a MIT license. See `LICENSE` for more
 details.
