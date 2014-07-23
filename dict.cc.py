@@ -3,7 +3,7 @@ import signal
 import urllib.request, urllib.error, urllib.parse
 from re import findall
 from sys import exit
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 class Dict:
 	# Query dict.cc for the translations.  'dictionary' switches to a specific
@@ -68,23 +68,20 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGINT, handleSIGINT)
 
 	# Parse commandline
-	arg_parser = OptionParser(usage="Usage: %prog [options] [search]")
-	arg_parser.add_option("-r", "--results", type="int", default=15, metavar="NUMBER", help="only show NUMBER of results, default=15")
-	arg_parser.add_option("-d", "--dictionary", type="str", default="ende", help="choose dictionary (for example 'enfr' for English/French dictionary), default=ende")
-	(options, arguments) = arg_parser.parse_args()
+	arg_parser = ArgumentParser(usage="Usage: %(prog)s [options] [search]")
+	arg_parser.add_argument("search", nargs="+", help="search term")
+	arg_parser.add_argument("-r", "--results", type=int, default=15, metavar="NUMBER", help="only show NUMBER of results, default=15")
+	arg_parser.add_argument("-d", "--dictionary", default="ende", metavar="DICT", help="choose dictionary (for example 'enfr' for English/French dictionary), default=ende")
+	arguments = arg_parser.parse_args()
 
-	# Check whether a search query is missing.
-	if len(arguments) < 1:
-		arg_parser.error("missing search query")
-	else:
-		query = " ".join(arguments)
+	query = " ".join(arguments.search)
 
-		myDict = Dict()
-		# Retrieve translation from dict.cc.
-		myDict.getResponse(dictionary=options.dictionary, query=query)
-		# Parse the response, exit on failure.
-		if myDict.parseResponse(options.results) == False:
-			exit(1)
+	myDict = Dict()
+	# Retrieve translation from dict.cc.
+	myDict.getResponse(dictionary=arguments.dictionary, query=query)
+	# Parse the response, exit on failure.
+	if myDict.parseResponse(arguments.results) == False:
+		exit(1)
 
-		# Print out a list of the results.
-		myDict.printResults()
+	# Print out a list of the results.
+	myDict.printResults()
