@@ -61,8 +61,8 @@ slock or i3lock)
 
 twwatch.py
 ----------
-Script to browse twitch.tv more conveniently using `dmenu`. The actual
-streams are then played via `livestreamer`.
+Script to browse [twitch.tv](http://www.twitch.tv/) more conveniently
+using `dmenu`. The actual streams are then played via `livestreamer`.
 
 __Requirements:__ `python3`, `dmenu`, `livestreamer`
 
