@@ -13,7 +13,7 @@ class Dict:
 		query = urllib.parse.quote(query)
 		# Trick to avoid dict.cc from denying the request: change User-agent to
 		# firefox's.
-		request = urllib.request.Request("http://" + dictionary + ".dict.cc/?s=" + query, data=None, headers={"User-agent": "Mozilla/5.0"})
+		request = urllib.request.Request("http://" + dictionary + ".dict.cc/?s=" + query, data=None, headers={"User-agent": "Mozilla/5.0 (X11; Linux x86_64; rv:31.0) Gecko/20100101 Firefox/31.0"})
 		f = urllib.request.urlopen(request)
 		self.Response = f.read()
 
