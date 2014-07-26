@@ -57,7 +57,6 @@ def make_dmenu_string(game_name, viewers):
     return game_name + " [" + str(viewers) + "]"
 
 def call_dmenu(args, input):
-    print(args)
     try:
         output = subprocess.check_output("dmenu " + args, input=input, shell=True, universal_newlines=True)
         return output
