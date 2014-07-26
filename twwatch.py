@@ -99,5 +99,5 @@ if __name__ == "__main__":
     for stream in sorted(dmenu_stream_list, key=lambda k: dmenu_stream_list[k].viewers, reverse=True):
         dmenu_input = dmenu_input + stream + "\n"
 
-    stream = dmenu_stream_list[call_dmenu(arguments.livestreamer + " -p \"Streams >>\"", dmenu_input)[:-1]]
+    stream = dmenu_stream_list[call_dmenu(arguments.dmenu + " -p \"Streams >>\"", dmenu_input)[:-1]]
     stream.play(arguments.livestreamer)
