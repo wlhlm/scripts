@@ -25,16 +25,6 @@ display a notification showing the volume as progress.
 
 __Requirements:__ `egrep`, `amixer`, `notify-send` (libnotify)
 
-dir.sh
-------
-Generate a custom directory listing. Most usable for web servers. I've
-written it because I needed more features than the default listing of
-the `nginx` http server (I didn't want to compile-in an extra module).
-It is inspired by the dirlisting module of `lighttpd`.
-
-__Requirements:__ `coreutils: ls`, `getopt`, `awk`, `sed`, `file` for
-mime-type information, `readlink`
-
 dict.cc.py
 ----------
 Query the [dict.cc](http://www.dict.cc) online-dictionary. Adapted from
