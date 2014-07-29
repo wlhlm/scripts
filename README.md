@@ -41,6 +41,12 @@ $ ./dict.cc.py "spam" | column -t -s $'\t'
 
 __Requirements:__ `python>=3.3`
 
+dir.py
+------
+Generate an HTML directory listing. The listing can be embbeded into a template file. this file can contain three variables: `${LISTING}` is replaced by the listing table itself, `${PWD}` yields the path and `${TEXT}` stands for a text file. The funtionality is inspired by the index module of lighttpd.
+
+__Requirements:__ `python>=3.2` (http.escape)
+
 lock
 ----
 Trivial script for changing the power state of the computer but enabling
