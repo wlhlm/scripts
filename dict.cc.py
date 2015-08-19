@@ -71,7 +71,7 @@ if __name__ == "__main__":
 	arg_parser = ArgumentParser(usage="Usage: %(prog)s [options] SEARCH")
 	arg_parser.add_argument("search", nargs="+", help="search term")
 	arg_parser.add_argument("-r", "--results", type=int, default=15, metavar="NUMBER", help="only show NUMBER of results, default=15")
-	arg_parser.add_argument("-d", "--dictionary", default="ende", metavar="DICT", help="choose dictionary (for example 'enfr' for English/French dictionary), default=ende")
+	arg_parser.add_argument("-d", "--dictionary", default="ende", metavar="DICT", help="choose dictionary (for example 'enfr' for English/French dictionary)")
 	arguments = arg_parser.parse_args()
 
 	query = " ".join(arguments.search)
