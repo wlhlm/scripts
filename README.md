@@ -20,10 +20,10 @@ __Requirements:__ `bash`, `awk/grep`, `setxkbmap`
 
 chvol
 -----
-Change the volume of the ALSA Master device. It also can optionally
+Change the volume of the pulseaudio defaukt sink. Optionally, it can
 display a notification showing the volume as progress.
 
-__Requirements:__ `egrep`, `amixer`, `notify-send` (libnotify)
+__Requirements:__ `egrep`, pulseaudio`, `ponymix`, `notify-send` (libnotify)
 
 dict.cc.py
 ----------
