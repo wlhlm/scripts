@@ -23,8 +23,9 @@ class Node():
         if self.is_directory():
             self.type_name = "Directory"
         else:
-            type, _ = mimetypes.guess_type(self.basename)
             if mime and type:
+                type, _ = mimetypes.guess_type(self.basename)
+
                 self.type_name = type
             else:
                 self.type_name = "File"
