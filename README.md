@@ -47,14 +47,6 @@ Generate an HTML directory listing. The listing can be embbeded into a template 
 
 __Requirements:__ `python>=3.2` (http.escape)
 
-lock
-----
-Trivial script for changing the power state of the computer but enabling
-a screenlocker beforehand.
-
-__Requirements:__ `systemctl` (systemd), a screenlocker (for example
-slock or i3lock)
-
 twwatch.py
 ----------
 Script to browse [twitch.tv](http://www.twitch.tv/) more conveniently
